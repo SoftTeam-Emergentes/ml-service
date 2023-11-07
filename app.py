@@ -11,7 +11,7 @@ app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
 app.config['MYSQL_DATABASE_DB'] = 'perustars'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'  # Cambia esto según la ubicación de tu servidor MySQL
 
-mysql = MySQL(app)
+mysql: MySQL = MySQL(app)
 
 @app.route("/")
 def helloWorld():
@@ -20,8 +20,7 @@ def helloWorld():
 @app.route("/ml/all-training-data", methods=['GET'])
 def getMLTrainingData():
     service = TuriMLService(mysql)
-    service.foo()
-    return "success"
+    return service.performRecommendations()
 
 
 

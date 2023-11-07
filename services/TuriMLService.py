@@ -23,6 +23,14 @@ class TuriMLService:
             return (None, None, None)
         self.logger.info("------------Out of foo method with success ------------")
     def performRecommendations(self):
-        pass
+        userIdList, itemIdList, ratingList = self.turiMLRepository.getAllMLTrainingData()
+        print(userIdList, itemIdList, ratingList)
+        sframe = tc.SFrame({'user_id': userIdList,
+                      'item_id': itemIdList,
+                       'rating': ratingList})
+        mlRecommender = tc.recommender.create(sframe, target='rating')
+        result = mlRecommender.recommend()
+        self.logger.info("Result from ML Rating Recommender %s", result)
+        return result
 
     

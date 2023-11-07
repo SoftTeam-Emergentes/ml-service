@@ -10,14 +10,14 @@ class TuriMlRepository:
     def getAllMLTrainingData(self):
         self.logger.info('---- Entered to getAllMLTrainingData-----------')
         cursor = self.dbHandler.get_db().cursor()
-        self.logger.info('Executing db query: SELECT * FROM ml_training_data')
-        cursor.execute('SELECT * FROM ml_training_data')
+        self.logger.info('Executing db query: SELECT * FROM perustars.m_l_training_data')
+        cursor.execute('SELECT * FROM perustars.m_l_training_data')
         data = cursor.fetchall()
         cursor.close()
         self.logger.info('---- Out of to getAllMLTrainingData-----------')
         return self.filterData(data)
-    def filterData(self, mlData: Tuple[Tuple[int,int,int,str]]) -> Tuple[List[int], List[int], List[int]]:
-        partialResult = ( (hobbyistId, artistId, score) for hobbyistId, artistId, score, _ in mlData)
+    def filterData(self, mlData: Tuple[Tuple[int,int,int,int,str, bool]]) -> Tuple[List[int], List[int], List[int]]:
+        partialResult = tuple( (hobbyistId, artistId, score) for _, hobbyistId, artistId, score, _, _ in mlData)
         usersId = []
         itemsId = []
         ratings = []
