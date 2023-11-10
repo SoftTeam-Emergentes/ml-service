@@ -1,27 +1,44 @@
 import logging
-from flask import Flask
+from flask import Flask, jsonify
 from flaskext.mysql import MySQL
 from services.TuriMLService import TuriMLService
+from os import getenv
+from dotenv import load_dotenv
+from flask_redis import FlaskRedis
 
 logging.basicConfig(level=logging.DEBUG)
+load_dotenv()
 
 app = Flask(__name__)
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
-app.config['MYSQL_DATABASE_DB'] = 'perustars'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'  # Cambia esto según la ubicación de tu servidor MySQL
+app.config['MYSQL_DATABASE_USER'] = getenv("MYSQL_DATABASE_USER")
+app.config['MYSQL_DATABASE_PASSWORD'] = getenv("MYSQL_DATABASE_PASSWORD")
+app.config['MYSQL_DATABASE_DB'] = getenv("MYSQL_DATABASE_DB")
+app.config['MYSQL_DATABASE_HOST'] = getenv("MYSQL_DATABASE_HOST")
+app.config['REDIS_URL'] = "redis://localhost:6379/0"
+redis = FlaskRedis(app)
 
 mysql: MySQL = MySQL(app)
 
 @app.route("/")
 def helloWorld():
+    print(getenv("MYSQL_DATABASE_USER"), getenv("MYSQL_DATABASE_PASSWORD"), getenv("MYSQL_DATABASE_DB"), getenv("MYSQL_DATABASE_HOST"))
     return "Hello World"
 
-@app.route("/ml/all-training-data", methods=['GET'])
+@app.route("/recommendation-system/compute-data", methods=['GET'])
 def getMLTrainingData():
     service = TuriMLService(mysql)
-    return service.performRecommendations()
+    service.performRecommendations(redis)
+    # todas_las_claves = redis.keys('*')
+    # datos_redis = {clave.decode('utf-8'): redis.get(clave).decode('utf-8') for clave in todas_las_claves}
+    # return jsonify(datos_redis)
+    return "Data computation was successfully done"
 
+@app.route("/recommendation-system/hobbyists/<int:hobbyistId>/recommended-artists")
+def getRecommededArtistForSpecificHobbyist(hobbyistId: int):
+    if(redis.get(hobbyistId) == None):
+        service = TuriMLService(mysql)
+        service.performRecommendations(redis)
+    return jsonify(int(redis.get(hobbyistId).decode('utf-8')))
 
-
-app.run(port=8000)
+if __name__ == "__main__":
+    app.run(port=8000)

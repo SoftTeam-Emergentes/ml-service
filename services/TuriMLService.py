@@ -3,6 +3,7 @@ from flaskext.mysql import MySQL
 from repositories.TuriMLRepository import TuriMlRepository
 import logging
 from typing import Tuple, List
+from flask_redis import FlaskRedis
 
 class TuriMLService:
     def __init__(self, mysql: MySQL) -> None:
@@ -22,15 +23,23 @@ class TuriMLService:
             self.logger.info("------------Out of foo method with error ------------")
             return (None, None, None)
         self.logger.info("------------Out of foo method with success ------------")
-    def performRecommendations(self):
+    def performRecommendations(self, redis: FlaskRedis):
         userIdList, itemIdList, ratingList = self.turiMLRepository.getAllMLTrainingData()
-        print(userIdList, itemIdList, ratingList)
+        if len(userIdList) == 0 and len(itemIdList) == 0 and len(ratingList) == 0:
+            return
         sframe = tc.SFrame({'user_id': userIdList,
                       'item_id': itemIdList,
                        'rating': ratingList})
         mlRecommender = tc.recommender.create(sframe, target='rating')
-        result = mlRecommender.recommend()
-        self.logger.info("Result from ML Rating Recommender %s", result)
-        return result
+        results = tuple(mlRecommender.recommend())
+        filteredResults = []
+        redis.flushdb()
+        for result in results:
+            if(result.get('rank') != 1):
+                continue
+            hobbyistId = result.get('user_id')
+            artistId = result.get('item_id')
+            redis.set(hobbyistId, artistId)
+        self.logger.info("Result from ML Rating Recommender %s", filteredResults)
 
     

@@ -10,8 +10,8 @@ class TuriMlRepository:
     def getAllMLTrainingData(self):
         self.logger.info('---- Entered to getAllMLTrainingData-----------')
         cursor = self.dbHandler.get_db().cursor()
-        self.logger.info('Executing db query: SELECT * FROM perustars.m_l_training_data')
-        cursor.execute('SELECT * FROM perustars.m_l_training_data')
+        self.logger.info('Executing db query: SELECT * FROM m_l_training_data')
+        cursor.execute('SELECT * FROM m_l_training_data')
         data = cursor.fetchall()
         cursor.close()
         self.logger.info('---- Out of to getAllMLTrainingData-----------')
