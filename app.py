@@ -36,9 +36,6 @@ def testRedis():
 def getMLTrainingData():
     service = TuriMLService(mysql)
     service.performRecommendations(redis)
-    # todas_las_claves = redis.keys('*')
-    # datos_redis = {clave.decode('utf-8'): redis.get(clave).decode('utf-8') for clave in todas_las_claves}
-    # return jsonify(datos_redis)
     return "Data computation was successfully done"
 
 @app.route("/recommendation-system/hobbyists/<int:hobbyistId>/recommended-artists")
