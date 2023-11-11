@@ -14,7 +14,7 @@ cffi==1.15.1
 charset-normalizer==2.0.12
 click==8.0.4
 comm==0.1.4
-coremltools==3.3
+coremltools
 dataclasses==0.8
 decorator==5.1.1
 defusedxml==0.7.1
